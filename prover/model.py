@@ -109,6 +109,10 @@ class EntailmentWriter(pl.LightningModule):
         warmup_steps: int,
         num_beams: int,
         topk: int,
+         # Diverse Beam Search Parameters
+        diverse_beam_search: bool,
+        num_groups_beam_search: int,
+        diversity_penalty_diverse_beam_search: float,
         max_input_len: int,
         proof_search: bool,
         verifier_weight: float,
@@ -125,6 +129,12 @@ class EntailmentWriter(pl.LightningModule):
         self.warmup_steps = warmup_steps
         self.num_beams = num_beams
         self.topk = topk
+
+         # Diverse Beam Search Parameters
+        self.diverse_beam_search = diverse_beam_search
+        self.num_groups_beam_search = num_groups_beam_search 
+        self.diversity_penalty_diverse_beam_search = diversity_penalty_diverse_beam_search
+
         self.verifier_weight = verifier_weight
         self.proof_search = proof_search
         self.oracle_prover = oracle_prover
@@ -241,16 +251,32 @@ class EntailmentWriter(pl.LightningModule):
             return_tensors="pt",
         )
 
-        output = self.seq2seq.generate(
-            input_ids=input.input_ids.to(self.device, non_blocking=True),
-            attention_mask=input.attention_mask.to(self.device, non_blocking=True),
-            max_length=self.trainer.datamodule.max_output_len,  # type: ignore
-            num_beams=self.num_beams,
-            num_return_sequences=self.topk,
-            early_stopping=True,
-            output_scores=True,
-            return_dict_in_generate=True,
-        )
+        if self.diverse_beam_search:
+            output = self.seq2seq.generate(
+                input_ids=input.input_ids.to(self.device, non_blocking=True),
+                attention_mask=input.attention_mask.to(self.device, non_blocking=True),
+                max_length=self.trainer.datamodule.max_output_len,  # type: ignore
+                num_beams=self.num_beams,
+                num_return_sequences=self.topk,
+                early_stopping=True,
+                output_scores=True,
+                return_dict_in_generate=True,
+                # Diverse Beam Search Parameters
+                num_beam_groups=self.num_groups_beam_search,
+                diversity_penalty=self.diversity_penalty_diverse_beam_search,
+            )
+        else:
+            output = self.seq2seq.generate(
+                input_ids=input.input_ids.to(self.device, non_blocking=True),
+                attention_mask=input.attention_mask.to(self.device, non_blocking=True),
+                max_length=self.trainer.datamodule.max_output_len,  # type: ignore
+                num_beams=self.num_beams,
+                num_return_sequences=self.topk,
+                early_stopping=True,
+                output_scores=True,
+                return_dict_in_generate=True,
+            )
+            
         output_text = self.tokenizer.batch_decode(
             output.sequences, skip_special_tokens=True
         )

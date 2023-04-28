@@ -23,6 +23,9 @@ model:
   proof_search: false
   oracle_prover: false
   oracle_verifier: false
+  diverse_beam_search: true 
+  num_groups_beam_search: 5 
+  diversity_penalty_diverse_beam_search: 5.0
 data:
   dataset: entailmentbank
   sample_goal: intermediates # hypothesis | intermediates
