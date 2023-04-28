@@ -110,7 +110,7 @@ class EntailmentWriter(pl.LightningModule):
         num_beams: int,
         # Diverse Beam Search Parameters
         num_groups_beam_search: int,
-        diversity_penalty_diverse_beam_search: int,
+        diversity_penalty_diverse_beam_search: float,
 
         topk: int,
         max_input_len: int,

@@ -1,7 +1,7 @@
 from common import *
 from pytorch_lightning.utilities.cli import LightningCLI
 from prover.datamodule import ProofDataModule
-from prover.model import EntailmentWriter
+from prover.model_diverseBeamSearch import EntailmentWriter
 
 
 class CLI(LightningCLI):
