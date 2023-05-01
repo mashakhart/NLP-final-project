@@ -4,11 +4,13 @@ Proof graph for proof search.
 from common import *
 from prover.proof import ProofStep
 import networkx as nx
+import numpy as np
+from scipy.stats import gmean, hmean
 
 
 class ProofGraph:
     def __init__(
-        self, context: OrderedDict[str, str], hypothesis: str, eps: float = 1e-7
+        self, context: OrderedDict[str, str], hypothesis: str, eps: float = 1e-7, aggregation_method: str = 'min_sp', k: int = 2
     ) -> None:
         self.graph = nx.DiGraph()
         self.graph.add_node("hypothesis", score=0.0, step_score=None, sent=hypothesis)
@@ -22,6 +24,8 @@ class ProofGraph:
         self.sent2node[hypothesis] = "hypothesis"
         assert nx.is_directed_acyclic_graph(self.graph)
         self.eps = eps
+        self.method = aggregation_method
+        self.k = k
 
     def initialize(self, proof_steps: List[ProofStep], scores: List[float]):
         if len(proof_steps) == 0:
@@ -163,7 +167,26 @@ class ProofGraph:
         return self.agg_op(step_score, [self.graph.nodes[p]["score"] for p in premises])
 
     def agg_op(self, step_score: float, input_scores: List[float]) -> float:
-        return min([step_score] + input_scores)
+        if self.method == 'min_sp':
+            return min([step_score] + input_scores)
+        elif self.method == 's*min_p':
+            return step_score * min(input_scores)
+        elif self.method == 's^k*min_p':
+            return step_score**self.k * min(input_scores)
+        elif self.method == 's*p':
+            return step_score * np.prod(input_scores)
+        elif self.method == 'arithmetic_mean':
+            return np.mean([step_score] + input_scores)
+        elif self.method == 'geometric_mean':
+            return gmean([step_score] + input_scores)
+        elif self.method == 'harmonic_mean':
+            return hmean([step_score] + input_scores)
+        elif self.method == 's*avg_p':
+            return step_score * np.mean(input_scores)
+        elif self.method == 's^k*avg_p':
+            return step_score**self.k * np.mean(input_scores)
+        elif self.method == 's':
+            return step_score
 
     def to_pydot(self):
         nodes_to_visualize = {
