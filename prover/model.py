@@ -119,6 +119,8 @@ class EntailmentWriter(pl.LightningModule):
         verifier_ckpt: Optional[str] = None,
         oracle_prover: Optional[bool] = False,
         oracle_verifier: Optional[bool] = False,
+        aggregation_method: str = 'min_sp',
+        k: int = 2
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
@@ -139,6 +141,9 @@ class EntailmentWriter(pl.LightningModule):
         self.proof_search = proof_search
         self.oracle_prover = oracle_prover
         self.oracle_verifier = oracle_verifier
+        self.aggregation_method = aggregation_method
+        self.k = k
+        
         if stepwise and verifier_weight > 0:
             assert verifier_weight <= 1.0
             assert verifier_ckpt is not None
@@ -499,7 +504,7 @@ class EntailmentWriter(pl.LightningModule):
         step_scores_greedy: List[float],
     ) -> Tuple[str, float]:
         context, hypothesis = proof_gt.context, proof_gt.hypothesis
-        pg = ProofGraph(context, hypothesis)
+        pg = ProofGraph(context, hypothesis, aggregation_method=self.aggregation_method, k=self.k)
         pg.initialize(proof_greedy.proof_steps, step_scores_greedy)
 
         explored_proofs: Set[str] = set()
