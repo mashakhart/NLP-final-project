@@ -23,9 +23,13 @@ model:
   proof_search: false
   oracle_prover: false
   oracle_verifier: false
-  diverse_beam_search: true 
-  num_groups_beam_search: 5 
+  diverse_beam_search: false 
+  num_groups_beam_search: 5
   diversity_penalty_diverse_beam_search: 5.0
+  # 'min_sp', 's*min_p', 's^k*min_p', 's*p', 'arithmetic_mean', 
+  # 'geometric_mean', 'harmonic_mean', 's*avg_p', 's^k*avg_p', 's'
+  aggregation_method: min_sp 
+  k: 2
 data:
   dataset: entailmentbank
   sample_goal: intermediates # hypothesis | intermediates
