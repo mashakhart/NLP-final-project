@@ -216,25 +216,25 @@ class ProofGraph:
             input_scores.append(step_score_helper)
             return min(input_scores)
         elif self.method == 'weighted_nr_ancestors':
-            updated_stores = []
+            updated_scores = []
             idx = 0
             total_nr_ancestors = 0
             for p in premises:
                 nr_ancestors = len(nx.ancestors(self.graph, p))
-                updated_stores.append((input_scores[idx]) * self.alpha_nr_ancestors**nr_ancestors)
+                updated_scores.append((input_scores[idx]) * self.alpha_nr_ancestors**nr_ancestors)
                 total_nr_ancestors += nr_ancestors
                 idx += 1
-            updated_stores.append(step_score*self.alpha_nr_ancestors**total_nr_ancestors)
-            return min(updated_stores)
+            updated_scores.append(step_score*self.alpha_nr_ancestors**total_nr_ancestors)
+            return min(updated_scores)
         elif self.method == 'av_nr_ancestors':
             total_nr_ancestors = 0
             for p in premises:
                 nr_ancestors = len(nx.ancestors(self.graph, p))
                 total_nr_ancestors += nr_ancestors
             av_nr_ancestors = total_nr_ancestors / len(premises)
-            updated_stores = [self.alpha_nr_ancestors**av_nr_ancestors * i for i in input_scores]
-            updated_stores.append(self.alpha_nr_ancestors**(av_nr_ancestors + 1) * step_score) # one deeper level
-            return min(updated_stores)
+            updated_scores = [self.alpha_nr_ancestors**av_nr_ancestors * i for i in input_scores]
+            updated_scores.append(self.alpha_nr_ancestors**(av_nr_ancestors) * step_score) # one deeper level
+            return min(updated_scores)
         elif self.method == 's':
             return step_score
         
