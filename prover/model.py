@@ -148,7 +148,7 @@ class EntailmentWriter(pl.LightningModule):
         self.k = k
         self.min_s_weighted_alpha = min_s_weighted_alpha
         self.alpha_nr_ancestors = alpha_nr_ancestors
-        
+
         if stepwise and verifier_weight > 0:
             assert verifier_weight <= 1.0
             assert verifier_ckpt is not None
@@ -509,7 +509,8 @@ class EntailmentWriter(pl.LightningModule):
         step_scores_greedy: List[float],
     ) -> Tuple[str, float]:
         context, hypothesis = proof_gt.context, proof_gt.hypothesis
-        pg = ProofGraph(context, hypothesis, aggregation_method=self.aggregation_method, k=self.k)
+        pg = ProofGraph(context, hypothesis, aggregation_method=self.aggregation_method, k=self.k, min_s_weighted_alpha = self.min_s_weighted_alpha,
+        alpha_nr_ancestors = self.alpha_nr_ancestors)
         pg.initialize(proof_greedy.proof_steps, step_scores_greedy)
 
         explored_proofs: Set[str] = set()
