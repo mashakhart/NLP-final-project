@@ -177,11 +177,11 @@ class ProofGraph:
             return step_score**self.k * min(input_scores)
         elif self.method == 's*p':
             return step_score * np.prod(input_scores)
-        elif self.method == 'min1_sp * min2_sp':
+        elif self.method == 'min1_sp*min2_sp':
             input_scores.append(step_score)
             input_scores.sort()
             return min(input_scores) * input_scores[1]
-        elif self.method == 'min1_sp * min2_sp * min3_sp':
+        elif self.method == 'min1_sp*min2_sp*min3_sp':
             input_scores.append(step_score)
             input_scores.sort()
             return min(input_scores) * input_scores[1] * input_scores[2]

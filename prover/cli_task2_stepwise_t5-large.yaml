@@ -26,7 +26,8 @@ model:
   diverse_beam_search: false 
   num_groups_beam_search: 5
   diversity_penalty_diverse_beam_search: 5.0
-  # 'min_sp','s*min_p','s^k*min_p','s*p','min1_sp * min2_sp',
+  # 'min_sp','s*min_p','s^k*min_p','s*p',
+  # 'min1_sp * min2_sp',
   # 'min1_sp * min2_sp * min3_sp','min*max','min1*min2*max1*min2',
   # 'min_all_squared','min_all_cubed','multiply_all_squared','multiply_all_cubed',
   # 'min_exp_step_score','min_weight_by_stepscore','min_diff_weight_by_stepscore',
