@@ -26,10 +26,15 @@ model:
   diverse_beam_search: false 
   num_groups_beam_search: 5
   diversity_penalty_diverse_beam_search: 5.0
-  # 'min_sp', 's*min_p', 's^k*min_p', 's*p', 'arithmetic_mean', 
-  # 'geometric_mean', 'harmonic_mean', 's*avg_p', 's^k*avg_p', 's'
+  # 'min_sp','s*min_p','s^k*min_p','s*p','min1_sp * min2_sp',
+  # 'min1_sp * min2_sp * min3_sp','min*max','min1*min2*max1*min2',
+  # 'min_all_squared','min_all_cubed','multiply_all_squared','multiply_all_cubed',
+  # 'min_exp_step_score','min_weight_by_stepscore','min_diff_weight_by_stepscore',
+  # 'min_s_weighted','weighted_nr_ancestors','av_nr_ancestors','s'
   aggregation_method: min_sp 
   k: 2
+  min_s_weighted_alpha: 1 # this is for min_s_weighted
+  alpha_nr_ancestors: 0 # this is for: weighted_nr_ancestors, av_nr_ancestors
 data:
   dataset: entailmentbank
   sample_goal: intermediates # hypothesis | intermediates
@@ -42,3 +47,7 @@ data:
   path_train: ../data/entailment_trees_emnlp2021_data_v3/dataset/task_2/train.jsonl
   path_val: ../data/entailment_trees_emnlp2021_data_v3/dataset/task_2/dev.jsonl
   path_test: ../data/entailment_trees_emnlp2021_data_v3/dataset/task_2/test.jsonl
+
+
+
+        
