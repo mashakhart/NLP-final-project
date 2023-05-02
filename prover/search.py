@@ -160,6 +160,7 @@ class ProofGraph:
             score_new = self.agg_op(
                 self.graph.nodes[u]["step_score"],
                 [self.graph.nodes[v]["score"] for v in self.graph.predecessors(u)],
+                self.graph.predecessors(u)
             )
             if score_new > self.graph.nodes[u]["score"] + self.eps:
                 self.graph.nodes[u]["score"] = score_new
