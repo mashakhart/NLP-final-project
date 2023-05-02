@@ -10,7 +10,7 @@ from scipy.stats import gmean, hmean
 
 class ProofGraph:
     def __init__(
-        self, context: OrderedDict[str, str], hypothesis: str, eps: float = 1e-7, aggregation_method: str = 'min_sp', k: int = 2
+        self, context: OrderedDict[str, str], hypothesis: str, eps: float = 1e-7, aggregation_method: str = 'min_sp', k: int = 2, min_s_weighted_alpha: int = 1
     ) -> None:
         self.graph = nx.DiGraph()
         self.graph.add_node("hypothesis", score=0.0, step_score=None, sent=hypothesis)
@@ -26,6 +26,7 @@ class ProofGraph:
         self.eps = eps
         self.method = aggregation_method
         self.k = k
+        self.min_s_weighted_alpha = min_s_weighted_alpha
 
     def initialize(self, proof_steps: List[ProofStep], scores: List[float]):
         if len(proof_steps) == 0:
@@ -175,19 +176,51 @@ class ProofGraph:
             return step_score**self.k * min(input_scores)
         elif self.method == 's*p':
             return step_score * np.prod(input_scores)
-        elif self.method == 'arithmetic_mean':
-            return np.mean([step_score] + input_scores)
-        elif self.method == 'geometric_mean':
-            return gmean([step_score] + input_scores)
-        elif self.method == 'harmonic_mean':
-            return hmean([step_score] + input_scores)
-        elif self.method == 's*avg_p':
-            return step_score * np.mean(input_scores)
-        elif self.method == 's^k*avg_p':
-            return step_score**self.k * np.mean(input_scores)
+        elif self.method == 'min1_sp * min2_sp':
+            input_scores.append(step_score)
+            input_scores.sort()
+            return min(input_scores) * input_scores[1]
+        elif self.method == 'min1_sp * min2_sp * min3_sp':
+            input_scores.append(step_score)
+            input_scores.sort()
+            return min(input_scores) * input_scores[1] * input_scores[2]
+        elif self.method == 'min*max':
+            input_scores.append(step_score)
+            return min(input_scores) * max(input_scores)
+        elif self.method == 'min1*min2*max1*min2':
+            input_scores.append(step_score)
+            input_scores.sort()
+            length = len(input_scores)
+            return min(input_scores) * input_scores[1] * input_scores[length-2] * max(input_scores)
+        elif self.method == 'min_all_squared':
+            input_scores.append(step_score)
+            return min(([i ** 2 for i in input_scores]))
+        elif self.method == 'min_all_cubed':
+            input_scores.append(step_score)
+            return min(([i ** 3 for i in input_scores]))
+        elif self.method == 'multiply_all_squared':
+            input_scores.append(step_score)
+            return np.prod(([i ** 2 for i in input_scores]))
+        elif self.method == 'multiply_all_cubed':
+            input_scores.append(step_score)
+            return np.prod(([i ** 3 for i in input_scores]))
+        elif self.method == 'min_exp_step_score':
+            return min(input_scores)**(1 + step_score)
+        elif self.method == 'min_weight_by_stepscore':
+            return min(([i*step_score for i in input_scores]))
+        elif self.method == 'min_diff_weight_by_stepscore':
+            list1 = [i-i*step_score for i in input_scores]
+            list1.append(step_score)
+            return min(list1)
+        elif self.method == 'min_s_weighted':
+            step_score_helper = self.min_s_weighted_alpha*step_score
+            input_scores.append(step_score_helper)
+            return min(input_scores)
+    
         elif self.method == 's':
             return step_score
-
+        
+    
     def to_pydot(self):
         nodes_to_visualize = {
             node
