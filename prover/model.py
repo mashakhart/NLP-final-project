@@ -120,7 +120,10 @@ class EntailmentWriter(pl.LightningModule):
         oracle_prover: Optional[bool] = False,
         oracle_verifier: Optional[bool] = False,
         aggregation_method: str = 'min_sp',
-        k: int = 2
+        k: int = 2,
+        min_s_weighted_alpha: int = 1,
+        alpha_nr_ancestors: int = 1
+
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
@@ -143,6 +146,8 @@ class EntailmentWriter(pl.LightningModule):
         self.oracle_verifier = oracle_verifier
         self.aggregation_method = aggregation_method
         self.k = k
+        self.min_s_weighted_alpha = min_s_weighted_alpha
+        self.alpha_nr_ancestors = alpha_nr_ancestors
         
         if stepwise and verifier_weight > 0:
             assert verifier_weight <= 1.0
