@@ -211,10 +211,6 @@ class ProofGraph:
         elif self.method == 'min_weight_by_stepscore':
             input_scores.append(step_score)
             return min(([i*step_score for i in input_scores]))
-        elif self.method == 'min_diff_weight_by_stepscore':
-            list1 = [i-i*step_score for i in input_scores]
-            list1.append(step_score)
-            return min(list1)
         elif self.method == 'min_s_weighted':
             step_score_helper = self.min_s_weighted_alpha*step_score
             input_scores.append(step_score_helper)
@@ -224,7 +220,7 @@ class ProofGraph:
             idx = 0
             total_nr_ancestors = 0
             for p in premises:
-                nr_ancestors = nx.ancestors(self.graph, p)
+                nr_ancestors = len(nx.ancestors(self.graph, p))
                 updated_stores.append((input_scores[idx]) * self.alpha_nr_ancestors**nr_ancestors)
                 total_nr_ancestors += nr_ancestors
                 idx += 1
@@ -233,7 +229,7 @@ class ProofGraph:
         elif self.method == 'av_nr_ancestors':
             total_nr_ancestors = 0
             for p in premises:
-                nr_ancestors = nx.ancestors(self.graph, p)
+                nr_ancestors = len(nx.ancestors(self.graph, p))
                 total_nr_ancestors += nr_ancestors
             av_nr_ancestors = total_nr_ancestors / len(premises)
             updated_stores = [self.alpha_nr_ancestors**av_nr_ancestors * i for i in input_scores]
