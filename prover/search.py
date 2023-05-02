@@ -10,7 +10,7 @@ from scipy.stats import gmean, hmean
 
 class ProofGraph:
     def __init__(
-        self, context: OrderedDict[str, str], hypothesis: str, eps: float = 1e-7, aggregation_method: str = 'min_sp', k: int = 2, min_s_weighted_alpha: int = 1
+        self, context: OrderedDict[str, str], hypothesis: str, eps: float = 1e-7, aggregation_method: str = 'min_sp', k: int = 2, min_s_weighted_alpha: int = 1, alpha_nr_ancestors: int = 0
     ) -> None:
         self.graph = nx.DiGraph()
         self.graph.add_node("hypothesis", score=0.0, step_score=None, sent=hypothesis)
@@ -27,6 +27,7 @@ class ProofGraph:
         self.method = aggregation_method
         self.k = k
         self.min_s_weighted_alpha = min_s_weighted_alpha
+        self.alpha_nr_ancestors = alpha_nr_ancestors
 
     def initialize(self, proof_steps: List[ProofStep], scores: List[float]):
         if len(proof_steps) == 0:
@@ -165,9 +166,9 @@ class ProofGraph:
                 self.propagate_score(u)
 
     def calculate_score(self, step_score: float, premises: str) -> None:
-        return self.agg_op(step_score, [self.graph.nodes[p]["score"] for p in premises])
+        return self.agg_op(step_score, [self.graph.nodes[p]["score"] for p in premises], premises)
 
-    def agg_op(self, step_score: float, input_scores: List[float]) -> float:
+    def agg_op(self, step_score: float, input_scores: List[float], premises) -> float:
         if self.method == 'min_sp':
             return min([step_score] + input_scores)
         elif self.method == 's*min_p':
@@ -216,7 +217,26 @@ class ProofGraph:
             step_score_helper = self.min_s_weighted_alpha*step_score
             input_scores.append(step_score_helper)
             return min(input_scores)
-    
+        elif self.method == 'weighted_nr_ancestors':
+            updated_stores = []
+            idx = 0
+            total_nr_ancestors = 0
+            for p in premises:
+                nr_ancestors = nx.ancestors(self.graph, p)
+                updated_stores.append((input_scores[idx]) * self.alpha_nr_ancestors**nr_ancestors)
+                total_nr_ancestors += nr_ancestors
+                idx += 1
+            updated_stores.append(step_score*self.alpha_nr_ancestors**total_nr_ancestors)
+            return min(updated_stores)
+        elif self.method == 'av_nr_ancestors':
+            total_nr_ancestors = 0
+            for p in premises:
+                nr_ancestors = nx.ancestors(self.graph, p)
+                total_nr_ancestors += nr_ancestors
+            av_nr_ancestors = total_nr_ancestors / len(premises)
+            updated_stores = [self.alpha_nr_ancestors**av_nr_ancestors * i for i in input_scores]
+            updated_stores.append(self.alpha_nr_ancestors**(av_nr_ancestors + 1) * step_score) # one deeper level
+            return min(updated_stores)
         elif self.method == 's':
             return step_score
         
