@@ -206,8 +206,10 @@ class ProofGraph:
             input_scores.append(step_score)
             return np.prod(([i ** 3 for i in input_scores]))
         elif self.method == 'min_exp_step_score':
+            input_scores.append(step_score)
             return min(input_scores)**(1 + step_score)
         elif self.method == 'min_weight_by_stepscore':
+            input_scores.append(step_score)
             return min(([i*step_score for i in input_scores]))
         elif self.method == 'min_diff_weight_by_stepscore':
             list1 = [i-i*step_score for i in input_scores]
