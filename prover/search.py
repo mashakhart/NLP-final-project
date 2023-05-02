@@ -179,43 +179,43 @@ class ProofGraph:
         elif self.method == 's*p':
             return step_score * np.prod(input_scores)
         elif self.method == 'min1_sp*min2_sp':
-            input_scores.append(step_score)
-            input_scores.sort()
-            return min(input_scores) * input_scores[1]
+            newList = [step_score] + input_scores
+            newList.sort()
+            return newList[0] * newList[1]
         elif self.method == 'min1_sp*min2_sp*min3_sp':
-            input_scores.append(step_score)
-            input_scores.sort()
-            return min(input_scores) * input_scores[1] * input_scores[2]
+            newList = [step_score] + input_scores
+            newList.sort()
+            return newList[0] * newList[1] * newList[2]
         elif self.method == 'min*max':
-            input_scores.append(step_score)
-            return min(input_scores) * max(input_scores)
+            newList = [step_score] + input_scores
+            return min(newList) * max(newList)
         elif self.method == 'min1*min2*max1*min2':
-            input_scores.append(step_score)
-            input_scores.sort()
-            length = len(input_scores)
-            return min(input_scores) * input_scores[1] * input_scores[length-2] * max(input_scores)
+            newList = [step_score] + input_scores
+            newList.sort()
+            length = len(newList)
+            return newList[0] * newList[1] * newList[length-2] * newList[length-1]
         elif self.method == 'min_all_squared':
-            input_scores.append(step_score)
-            return min(([i ** 2 for i in input_scores]))
+            newList = [step_score] + input_scores
+            return min(([i ** 2 for i in newList]))
         elif self.method == 'min_all_cubed':
-            input_scores.append(step_score)
-            return min(([i ** 3 for i in input_scores]))
+            newList = [step_score] + input_scores
+            return min(([i ** 3 for i in newList]))
         elif self.method == 'multiply_all_squared':
-            input_scores.append(step_score)
-            return np.prod(([i ** 2 for i in input_scores]))
+            newList = [step_score] + input_scores
+            return np.prod(([i ** 2 for i in newList]))
         elif self.method == 'multiply_all_cubed':
-            input_scores.append(step_score)
-            return np.prod(([i ** 3 for i in input_scores]))
+            newList = [step_score] + input_scores
+            return np.prod(([i ** 3 for i in newList]))
         elif self.method == 'min_exp_step_score':
-            input_scores.append(step_score)
-            return min(input_scores)**(1 + step_score)
+            newList = [step_score] + input_scores
+            return min(newList)**(1 + step_score)
         elif self.method == 'min_weight_by_stepscore':
-            input_scores.append(step_score)
-            return min(([i*step_score for i in input_scores]))
+            newList = [step_score] + input_scores
+            return min(([i*step_score for i in newList]))
         elif self.method == 'min_s_weighted':
             step_score_helper = self.min_s_weighted_alpha*step_score
-            input_scores.append(step_score_helper)
-            return min(input_scores)
+            newList = [step_score_helper] + input_scores
+            return min(newList)
         elif self.method == 'weighted_nr_ancestors':
             updated_scores = []
             idx = 0
