@@ -189,7 +189,7 @@ class ProofGraph:
         elif self.method == 'min*max':
             newList = [step_score] + input_scores
             return min(newList) * max(newList)
-        elif self.method == 'min1*min2*max1*min2':
+        elif self.method == 'min1*min2*max1*max2':
             newList = [step_score] + input_scores
             newList.sort()
             length = len(newList)
