@@ -679,6 +679,7 @@ class EntailmentWriter(pl.LightningModule):
             json_path = os.path.join(self.trainer.log_dir, f"results_{split}.json")
             json.dump(results, open(json_path, "wt"))
             if self.dataset == "entailmentbank":
+                
                 tsv_path = os.path.join(self.trainer.log_dir, f"results_{split}.tsv")
                 with open(tsv_path, "wt") as oup:
                     for r in results:

@@ -10,7 +10,7 @@ from scipy.stats import gmean, hmean
 
 class ProofGraph:
     def __init__(
-        self, context: OrderedDict[str, str], hypothesis: str, eps: float = 1e-7, aggregation_method: str = 'min_sp', k: int = 2, min_s_weighted_alpha: int = 1, alpha_nr_ancestors: int = 0
+        self, context: OrderedDict[str, str], hypothesis: str, eps: float = 1e-7, aggregation_method: str = 'min_sp', k: int = 2, min_s_weighted_alpha: float = 1.0, alpha_nr_ancestors: float = 0.0
     ) -> None:
         self.graph = nx.DiGraph()
         self.graph.add_node("hypothesis", score=0.0, step_score=None, sent=hypothesis)
@@ -160,7 +160,7 @@ class ProofGraph:
             score_new = self.agg_op(
                 self.graph.nodes[u]["step_score"],
                 [self.graph.nodes[v]["score"] for v in self.graph.predecessors(u)],
-                self.graph.predecessors(u)
+                [v for v in self.graph.predecessors(u)]
             )
             if score_new > self.graph.nodes[u]["score"] + self.eps:
                 self.graph.nodes[u]["score"] = score_new
@@ -185,7 +185,11 @@ class ProofGraph:
         elif self.method == 'min1_sp*min2_sp*min3_sp':
             newList = [step_score] + input_scores
             newList.sort()
-            return newList[0] * newList[1] * newList[2]
+            length = len(newList)
+            if length == 2:
+                return newList[0] * newList[1]
+            if length > 2:
+                return newList[0] * newList[1] * newList[2]
         elif self.method == 'min*max':
             newList = [step_score] + input_scores
             return min(newList) * max(newList)
@@ -197,9 +201,15 @@ class ProofGraph:
         elif self.method == 'min_all_squared':
             newList = [step_score] + input_scores
             return min(([i ** 2 for i in newList]))
+        elif self.method == 'min_all_squared_l':
+            newList = [step_score] + input_scores
+            return min(([2*np.log(i) for i in newList]))
         elif self.method == 'min_all_cubed':
             newList = [step_score] + input_scores
             return min(([i ** 3 for i in newList]))
+        elif self.method == 'min_all_cubed_l':
+            newList = [step_score] + input_scores
+            return min(([3*np.log(i) for i in newList]))
         elif self.method == 'multiply_all_squared':
             newList = [step_score] + input_scores
             return np.prod(([i ** 2 for i in newList]))
@@ -208,10 +218,7 @@ class ProofGraph:
             return np.prod(([i ** 3 for i in newList]))
         elif self.method == 'min_exp_step_score':
             newList = [step_score] + input_scores
-            return min(newList)**(1 + step_score)
-        elif self.method == 'min_weight_by_stepscore':
-            newList = [step_score] + input_scores
-            return min(([i*step_score for i in newList]))
+            return min(newList)**(2 - step_score)
         elif self.method == 'min_s_weighted':
             step_score_helper = self.min_s_weighted_alpha*step_score
             newList = [step_score_helper] + input_scores

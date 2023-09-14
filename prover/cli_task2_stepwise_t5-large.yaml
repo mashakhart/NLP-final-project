@@ -34,8 +34,9 @@ model:
   # 'min_s_weighted','weighted_nr_ancestors','av_nr_ancestors','s'
   aggregation_method: min_sp 
   k: 2
-  min_s_weighted_alpha: 1 # this is for min_s_weighted
-  alpha_nr_ancestors: 0 # this is for: weighted_nr_ancestors, av_nr_ancestors
+  min_s_weighted_alpha: 1.0 # this is for min_s_weighted
+  alpha_nr_ancestors: 0.0 # this is for: weighted_nr_ancestors, av_nr_ancestors
+  store_ID_flag: 0
 data:
   dataset: entailmentbank
   sample_goal: intermediates # hypothesis | intermediates
